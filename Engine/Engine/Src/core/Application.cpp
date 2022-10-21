@@ -7,6 +7,7 @@
 #include "Time.h"
 #include "Log.h"
 
+#include "AssetRegistry.h"
 #include "ScreenBuffer.h"
 
 using rendering::Renderer;
@@ -24,9 +25,10 @@ Aplication::Aplication()
 
 	Window::Init(false, true, "Window");
 	Camera::Init(Window::width, Window::height);
-	Renderer::Init({ 0.176f, 0.180f, 0.211f });
+	Renderer::Init({ 0.176f / 2, 0.180f / 2, 0.211f / 2 });
 	GUI::Init();
 
+    rendering::AssetRegistry::RegisterSprite({ 0, 0 }, { Window::width, Window::height }, { Window::width, Window::height });
     ScreenBuffer::Generate_ScreenTexture();
 }
 
@@ -76,7 +78,7 @@ void Aplication::Run()
 
         Renderer::Clear();
         if (Render != NULL) Render();
-        Renderer::SubmitQuad(0, 0, 0);
+        Renderer::SubmitQuad(Window::width / -2.0f, Window::height / -2.0f, 0);
         Renderer::DrawBatch();
 
         GUI::Clear();

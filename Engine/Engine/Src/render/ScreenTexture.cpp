@@ -6,7 +6,7 @@
 
 unsigned int ScreenTexture::rendererID;
 
-void ScreenTexture::Generate(const uint8_t* buffer)
+void ScreenTexture::Generate(const uint32_t* buffer)
 {
 	GLCall(glGenTextures(1, &ScreenTexture::rendererID));
 	GLCall(glBindTexture(GL_TEXTURE_2D, ScreenTexture::rendererID));
@@ -16,13 +16,13 @@ void ScreenTexture::Generate(const uint8_t* buffer)
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
 	GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
 
-	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, RES_X, RES_Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer));
+	GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, RES_X, RES_Y, 0, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer));
 	Bind();
 }
 
-void ScreenTexture::Update(const uint8_t* buffer)
+void ScreenTexture::Update(const uint32_t* buffer)
 {
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, RES_X, RES_Y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, RES_X, RES_Y, GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, buffer);
 	Bind();
 }
 

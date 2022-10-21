@@ -6,10 +6,10 @@
 class ScreenBuffer
 {
 private:
-	static uint8_t m_bufferData[SCREEN_BUFFER_SIZE];
+	static uint32_t m_bufferData[SCREEN_BUFFER_SIZE];
 
 public:
-	static void SetPixel(uint32_t x, uint32_t y, uint8_t r, uint8_t g, uint8_t b);
+	static void SetPixel(uint32_t x, uint32_t y, uint32_t color);
 	static void Clear();
 
 	static void Generate_ScreenTexture();
