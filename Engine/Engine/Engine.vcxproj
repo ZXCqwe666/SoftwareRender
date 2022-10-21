@@ -18,6 +18,9 @@
     <ClCompile Include="Src\render\Shader.cpp" />
     <ClCompile Include="Src\render\Texture.cpp" />
     <ClCompile Include="Src\engine\Window.cpp" />
+    <ClCompile Include="Src\soft_render\GuiControls.cpp" />
+    <ClCompile Include="Src\soft_render\ScreenBuffer.cpp" />
+    <ClCompile Include="Src\soft_render\SoftRender.cpp" />
     <ClCompile Include="Src\vendor\glad\src\glad.c" />
     <ClCompile Include="Src\Vendor\glm\detail\glm.cpp" />
     <ClCompile Include="Src\vendor\imgui\imgui.cpp" />
@@ -44,6 +47,10 @@
     <ClInclude Include="Src\render\Texture.h" />
     <ClInclude Include="Src\render\data\Vertex.h" />
     <ClInclude Include="Src\engine\Window.h" />
+    <ClInclude Include="Src\soft_render\Config.h" />
+    <ClInclude Include="Src\soft_render\GuiControls.h" />
+    <ClInclude Include="Src\soft_render\ScreenBuffer.h" />
+    <ClInclude Include="Src\soft_render\SoftRender.h" />
     <ClInclude Include="Src\vendor\glad\include\glad\glad.h" />
     <ClInclude Include="Src\vendor\glad\include\KHR\khrplatform.h" />
     <ClInclude Include="Src\Vendor\glm\common.hpp" />
@@ -515,7 +522,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\GLFW\include;$(ProjectDir)Src\vendor\glad\include;$(ProjectDir)Src\vendor;$(ProjectDir)Src\core;$(ProjectDir)Src\engine;$(ProjectDir)Src\render;$(ProjectDir)Src\render\data;$(ProjectDir)Src\render\macros</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)Dependencies\GLFW\include;$(ProjectDir)Src\vendor\glad\include;$(ProjectDir)Src\vendor;$(ProjectDir)Src\core;$(ProjectDir)Src\engine;$(ProjectDir)Src\render;$(ProjectDir)Src\render\data;$(ProjectDir)Src\render\macros;$(ProjectDir)Src\soft_render</AdditionalIncludeDirectories>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <LanguageStandard>stdcpp17</LanguageStandard>

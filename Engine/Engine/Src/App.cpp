@@ -1,11 +1,15 @@
 ﻿#include "Application.h"
-#include "AssetRegistry.h"
+
+#include "SoftRender.h"
+#include "GuiControls.h"
 
 int main() 
 {
-    rendering::AssetRegistry::RegisterSprite({ 0, 0 }, { 150, 150 }, { 1200, 300 });
-
     Aplication app;
+
+    app.Set_RenderGUI_Function(GUI_Controls::DrawGUI);
+    app.Set_Render_Function(SoftRender::Render);
+
     app.Run();
     return 0;
 }
