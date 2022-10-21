@@ -1,8 +1,6 @@
 #include "SoftRender.h"
 #include "ScreenBuffer.h"
 
-#include <cmath>
-
 void SoftRender::Render()
 {
 	ScreenBuffer::Clear();
