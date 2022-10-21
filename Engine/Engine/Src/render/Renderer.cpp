@@ -16,7 +16,6 @@ namespace rendering
 	int Renderer::quadCount = 0;
 
 	Vertex Renderer::vertices[max_verts];
-	Texture Renderer::texture;
 	Shader Renderer::shader;
 
 	uint32_t Renderer::vertexArrayID;
@@ -29,7 +28,6 @@ namespace rendering
 		GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 		GLCall(glClearColor(clearColor.r, clearColor.g, clearColor.b, 1.0f));
 
-		texture.LoadTexture(".\\Resources\\Textures\\Atlas.png");
 		shader.LoadShader(".\\Resources\\Shaders\\Quad.shader");
 
 		GLCall(glGenVertexArrays(1, &vertexArrayID));

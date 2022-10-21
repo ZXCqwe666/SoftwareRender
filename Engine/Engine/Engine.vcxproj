@@ -16,7 +16,7 @@
     <ClCompile Include="Src\engine\GUI.cpp" />
     <ClCompile Include="Src\render\Renderer.cpp" />
     <ClCompile Include="Src\render\Shader.cpp" />
-    <ClCompile Include="Src\render\Texture.cpp" />
+    <ClCompile Include="Src\render\ScreenTexture.cpp" />
     <ClCompile Include="Src\engine\Window.cpp" />
     <ClCompile Include="Src\soft_render\GuiControls.cpp" />
     <ClCompile Include="Src\soft_render\ScreenBuffer.cpp" />
@@ -44,7 +44,7 @@
     <ClInclude Include="Src\render\Renderer.h" />
     <ClInclude Include="Src\render\Shader.h" />
     <ClInclude Include="Src\render\data\SpriteData.h" />
-    <ClInclude Include="Src\render\Texture.h" />
+    <ClInclude Include="Src\render\ScreenTexture.h" />
     <ClInclude Include="Src\render\data\Vertex.h" />
     <ClInclude Include="Src\engine\Window.h" />
     <ClInclude Include="Src\soft_render\Config.h" />

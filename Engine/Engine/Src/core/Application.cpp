@@ -7,6 +7,8 @@
 #include "Time.h"
 #include "Log.h"
 
+#include "ScreenBuffer.h"
+
 using rendering::Renderer;
 using rendering::Camera;
 
@@ -24,6 +26,8 @@ Aplication::Aplication()
 	Camera::Init(Window::width, Window::height);
 	Renderer::Init({ 0.176f, 0.180f, 0.211f });
 	GUI::Init();
+
+    ScreenBuffer::Generate_ScreenTexture();
 }
 
 Aplication::~Aplication()
@@ -72,6 +76,7 @@ void Aplication::Run()
 
         Renderer::Clear();
         if (Render != NULL) Render();
+        Renderer::SubmitQuad(0, 0, 0);
         Renderer::DrawBatch();
 
         GUI::Clear();

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderConstants.h"
-#include "Texture.h"
 #include "Shader.h"
 #include "Vertex.h"
 
@@ -17,7 +16,6 @@ namespace rendering
 		static int quadCount;
 
 		static Vertex vertices[max_verts];
-		static Texture texture;
 		static Shader shader;
 
 		static uint32_t vertexArrayID;
