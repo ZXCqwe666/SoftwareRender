@@ -6,6 +6,8 @@
 
 int main() 
 {
+    SoftRender::Init();
+
     Aplication app;
     app.Set_RenderGUI_Function(GUI_Controls::DrawGUI);
     app.Set_Render_Function(SoftRender::Render);

@@ -19,7 +19,9 @@
     <ClCompile Include="Src\render\ScreenTexture.cpp" />
     <ClCompile Include="Src\engine\Window.cpp" />
     <ClCompile Include="Src\soft_render\GuiControls.cpp" />
+    <ClCompile Include="Src\soft_render\math_data.cpp" />
     <ClCompile Include="Src\soft_render\ScreenBuffer.cpp" />
+    <ClCompile Include="Src\soft_render\SoftCamera.cpp" />
     <ClCompile Include="Src\soft_render\SoftRender.cpp" />
     <ClCompile Include="Src\vendor\glad\src\glad.c" />
     <ClCompile Include="Src\Vendor\glm\detail\glm.cpp" />
@@ -49,7 +51,9 @@
     <ClInclude Include="Src\engine\Window.h" />
     <ClInclude Include="Src\soft_render\Config.h" />
     <ClInclude Include="Src\soft_render\GuiControls.h" />
+    <ClInclude Include="Src\soft_render\math_data.h" />
     <ClInclude Include="Src\soft_render\ScreenBuffer.h" />
+    <ClInclude Include="Src\soft_render\SoftCamera.h" />
     <ClInclude Include="Src\soft_render\SoftRender.h" />
     <ClInclude Include="Src\vendor\glad\include\glad\glad.h" />
     <ClInclude Include="Src\vendor\glad\include\KHR\khrplatform.h" />

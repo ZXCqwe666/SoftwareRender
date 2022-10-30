@@ -1,6 +1,6 @@
 #include "ScreenBuffer.h"
 #include "ScreenTexture.h"
-#include <vcruntime_string.h>
+#include "vcruntime_string.h"
 
 uint32_t ScreenBuffer::m_bufferData[SCREEN_BUFFER_SIZE];
 
