@@ -28,6 +28,21 @@ void vec3::operator/=(const vec3& other)
 	z /= other.z;
 }
 
+void vec3::normalize()
+{
+	float length = sqrt((x * x) + (y * y) + (z * z));
+	float mag = length >= 0 ? length : -length;
+
+	x /= mag;
+	y /= mag;
+	z /= mag;
+}
+
+float vec3::distance2D(const vec3& other) const
+{
+	return sqrt(powf(x - other.x, 2.0f) + powf(y - other.y, 2.0f));
+}
+
 vec3 mat4x4::operator*(const vec3& input)
 {
 	vec3 result = { 0 };

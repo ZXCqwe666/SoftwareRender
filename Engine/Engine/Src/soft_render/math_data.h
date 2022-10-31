@@ -8,6 +8,9 @@ struct vec3
 	void operator -= (const vec3& other);
 	void operator *= (const vec3& other);
 	void operator /= (const vec3& other);
+
+	float distance2D(const vec3& other) const;
+	void normalize();
 };
 
 struct mat4x4

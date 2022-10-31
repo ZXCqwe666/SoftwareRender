@@ -4,11 +4,14 @@
 #include "SoftCamera.h"
 #include "math_data.h"
 
+const uint32_t line_color = (128 << 24) | (128 << 16) | (128 << 8) | 255;
+const uint32_t point_color = (200 << 24) | (200 << 16) | (200 << 8) | 255;
+
 vec3 SoftRender::meshPosition = { 0, 0, 2};
 
 void SoftRender::Init()
 {
-	SoftCamera::Init(0.1f, 1000.0f, 90.0f);
+	SoftCamera::Init(0.1f, 1000.0f, 60.0f);
 }
 
 void SoftRender::Render()
@@ -58,14 +61,24 @@ void SoftRender::Render()
 		triProjected.p[2] = SoftCamera::proj * triProjected.p[2];
 
 		//scale into view
-		const vec3 _110 = {1.0f, 1.0f, 0.0f};
-		const vec3 _res = {0.5f * (float)RES_X, 0.5f * (float)RES_Y, 1.0f};
-		triProjected.p[0] += _110;
-		triProjected.p[1] += _110;
-		triProjected.p[2] += _110;
-		triProjected.p[0] *= _res;
-		triProjected.p[1] *= _res;
-		triProjected.p[2] *= _res;
+		//const vec3 _110 = {1.0f, 1.0f, 0.0f};
+		//const vec3 _res = {0.5f * (float)RES_X, 0.5f * (float)RES_Y, 1.0f};
+		//triProjected.p[0] += _110;
+		//triProjected.p[1] += _110;
+		//triProjected.p[2] += _110;
+		//triProjected.p[0] *= _res;
+		//triProjected.p[1] *= _res;
+		//triProjected.p[2] *= _res;
+
+		triProjected.p[0].x += 1.0f; triProjected.p[0].y += 1.0f;
+		triProjected.p[1].x += 1.0f; triProjected.p[1].y += 1.0f;
+		triProjected.p[2].x += 1.0f; triProjected.p[2].y += 1.0f;
+		triProjected.p[0].x *= 0.5f * (float)RES_X;
+		triProjected.p[0].y *= 0.5f * (float)RES_Y;
+		triProjected.p[1].x *= 0.5f * (float)RES_X;
+		triProjected.p[1].y *= 0.5f * (float)RES_Y;
+		triProjected.p[2].x *= 0.5f * (float)RES_X;
+		triProjected.p[2].y *= 0.5f * (float)RES_Y;
 
 		//draw
 		DrawLine(triProjected.p[0], triProjected.p[1]);
@@ -95,43 +108,69 @@ void SoftRender::Render()
 
 void SoftRender::DrawLine(const vec3& start, const vec3& end)
 {
-	const uint32_t line_color = (128 << 24) | (128 << 16) | (128 << 8) | 255;
-	const uint32_t point_color = (200 << 24) | (200 << 16) | (200 << 8) | 255;
+	vec3 startPos = start;
+	vec3 rayDir = end;
+	rayDir -= start;
+	rayDir.normalize();
 
-	float dx = abs(end.x - start.x);
-	float dy = abs(end.y - start.y);
-	float step = 0;
+	vec3 rayUnitStepSize = 
+	{ 
+		sqrt(1 + (rayDir.y / rayDir.x) * (rayDir.y / rayDir.x)),
+		sqrt(1 + (rayDir.x / rayDir.y) * (rayDir.x / rayDir.y))
+	};
 
-	if (dx >= dy) step = dx;
-	else step = dy;
+	vec3 checkPos = startPos;
+	vec3 rayLen1D = { 0 };
+	vec3 step = { 0 };
 
-	dx /= step;
-	dy /= step;
-
-	float x = start.x;
-	float y = start.y;
-
-	int i = 0;
-
-	while (i < step)
+	if (rayDir.x < 0)
 	{
-		if ((uint32_t)x >= 0 && (uint32_t)x < RES_X && (uint32_t)y >= 0 && (uint32_t)y < RES_Y)
-		{
-			ScreenBuffer::SetPixel((uint32_t)x, (uint32_t)y, line_color);
-		}
-
-		x += dx;
-		y += dy;
-		i++;
+		step.x = -1;
+		rayLen1D.x = (startPos.x - float(checkPos.x)) * rayUnitStepSize.x;
+	}
+	else
+	{
+		step.x = 1;
+		rayLen1D.x = (float(checkPos.x + 1) - startPos.x) * rayUnitStepSize.x;
 	}
 
-	uint32_t start_x = (uint32_t)start.x;
-	uint32_t start_y = (uint32_t)start.y;
-	uint32_t end_x = (uint32_t)end.x;
-	uint32_t end_y = (uint32_t)end.y;
-
-	if (start_x >= 0 && start_x < RES_X && start_y >= 0 && start_y < RES_Y)
+	if (rayDir.y < 0)
 	{
-		ScreenBuffer::SetPixel(start_x, start_y, point_color);
+		step.y = -1;
+		rayLen1D.y = (startPos.y - float(checkPos.y)) * rayUnitStepSize.y;
+	}
+	else
+	{
+		step.y = 1;
+		rayLen1D.y = (float(checkPos.y + 1) - startPos.y) * rayUnitStepSize.y;
+	}
+
+	float maxDistance = start.distance2D(end);
+	float distance = 0.0f;
+
+	while (distance < maxDistance)
+	{
+		if (rayLen1D.x < rayLen1D.y)
+		{
+			checkPos.x += step.x;
+			distance = rayLen1D.x;
+			rayLen1D.x += rayUnitStepSize.x;
+		}
+		else
+		{
+			checkPos.y += step.y;
+			distance = rayLen1D.y;
+			rayLen1D.y += rayUnitStepSize.y;
+		}
+
+		if (checkPos.x >= 0 && checkPos.x < RES_X && checkPos.y >= 0 && checkPos.y < RES_Y)
+		{
+			ScreenBuffer::SetPixel((uint32_t)checkPos.x, (uint32_t)checkPos.y, line_color);
+		}
+	}
+
+	if ((uint32_t)start.x >= 0 && (uint32_t)start.x < RES_X && (uint32_t)start.y >= 0 && (uint32_t)start.y < RES_Y)
+	{
+		ScreenBuffer::SetPixel((uint32_t)start.x, (uint32_t)start.y, point_color);
 	}
 }
