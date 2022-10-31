@@ -4,6 +4,8 @@
 #include "SoftCamera.h"
 #include "math_data.h"
 
+vec3 SoftRender::meshPosition = { 0, 0, 2};
+
 void SoftRender::Init()
 {
 	SoftCamera::Init(0.1f, 1000.0f, 90.0f);
@@ -43,25 +45,17 @@ void SoftRender::Render()
 
 	for (int i = 0; i < cubeMesh.triangles.size(); i++)
 	{
-		triangle tri = cubeMesh.triangles[i];
+		triangle triProjected = cubeMesh.triangles[i];
 		
 		//translate
-		vec3 meshPosition = {2, 0, 5};
-		tri.p[0] += meshPosition;
-		tri.p[1] += meshPosition;
-		tri.p[2] += meshPosition;
+		triProjected.p[0] += meshPosition;
+		triProjected.p[1] += meshPosition;
+		triProjected.p[2] += meshPosition;
 
 		//project
-		triangle triProjected = { 0 };
-		triProjected.p[0] = SoftCamera::proj * tri.p[0];
-		triProjected.p[1] = SoftCamera::proj * tri.p[1];
-		triProjected.p[2] = SoftCamera::proj * tri.p[2];
-
-		//scale
-		//vec3 scale = {100, 100, 100};
-		//tri.p[0] += scale;
-		//tri.p[1] += scale;
-		//tri.p[2] += scale;
+		triProjected.p[0] = SoftCamera::proj * triProjected.p[0];
+		triProjected.p[1] = SoftCamera::proj * triProjected.p[1];
+		triProjected.p[2] = SoftCamera::proj * triProjected.p[2];
 
 		//scale into view
 		const vec3 _110 = {1.0f, 1.0f, 0.0f};
@@ -101,12 +95,43 @@ void SoftRender::Render()
 
 void SoftRender::DrawLine(const vec3& start, const vec3& end)
 {
+	const uint32_t line_color = (128 << 24) | (128 << 16) | (128 << 8) | 255;
+	const uint32_t point_color = (200 << 24) | (200 << 16) | (200 << 8) | 255;
+
+	float dx = abs(end.x - start.x);
+	float dy = abs(end.y - start.y);
+	float step = 0;
+
+	if (dx >= dy) step = dx;
+	else step = dy;
+
+	dx /= step;
+	dy /= step;
+
+	float x = start.x;
+	float y = start.y;
+
+	int i = 0;
+
+	while (i < step)
+	{
+		if ((uint32_t)x >= 0 && (uint32_t)x < RES_X && (uint32_t)y >= 0 && (uint32_t)y < RES_Y)
+		{
+			ScreenBuffer::SetPixel((uint32_t)x, (uint32_t)y, line_color);
+		}
+
+		x += dx;
+		y += dy;
+		i++;
+	}
+
 	uint32_t start_x = (uint32_t)start.x;
 	uint32_t start_y = (uint32_t)start.y;
-	uint32_t line_color = (128 << 24) | (128 << 16) | (128 << 8) | 255;
+	uint32_t end_x = (uint32_t)end.x;
+	uint32_t end_y = (uint32_t)end.y;
 
 	if (start_x >= 0 && start_x < RES_X && start_y >= 0 && start_y < RES_Y)
 	{
-		ScreenBuffer::SetPixel(start_x, start_y, line_color);
+		ScreenBuffer::SetPixel(start_x, start_y, point_color);
 	}
 }

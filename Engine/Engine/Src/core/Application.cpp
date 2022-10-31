@@ -23,7 +23,7 @@ Aplication::Aplication()
     if (!glfwInit())
     Log::Error("glfwInit() Failed");
 
-	Window::Init(false, true, "Window");
+	Window::Init(true, true, "Window");
 	Camera::Init(Window::width, Window::height);
 	Renderer::Init({ 0.176f / 2, 0.180f / 2, 0.211f / 2 });
 	GUI::Init();

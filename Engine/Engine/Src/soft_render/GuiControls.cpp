@@ -2,6 +2,7 @@
 
 #include "Time.h"
 #include "GUI.h"
+#include "SoftRender.h"
 
 void GUI_Controls::DrawGUI()
 {
@@ -11,5 +12,10 @@ void GUI_Controls::DrawGUI()
 
     ImGui::Begin("Debug");
     ImGui::Text("FPS : %i ", Time::displayFps);
+
+    ImGui::SliderFloat("Position X", &SoftRender::meshPosition.x, -25.0f, 25.0f);
+    ImGui::SliderFloat("Position Y", &SoftRender::meshPosition.y, -25.0f, 25.0f);
+    ImGui::SliderFloat("Position Z", &SoftRender::meshPosition.z, 0.0f, 25.0f);
+
     ImGui::End();
 }
