@@ -1,5 +1,10 @@
 #pragma once
 
+struct mat4x4
+{
+	float m[4][4] = { 0 };
+};
+
 struct vec3
 {
 	float x, y, z;
@@ -8,17 +13,12 @@ struct vec3
 	void operator -= (const vec3& other);
 	void operator *= (const vec3& other);
 	void operator /= (const vec3& other);
+	void operator *= (const mat4x4& mat);
 
 	float distance2D(const vec3& other) const;
 	void normalize();
 };
 
-struct mat4x4
-{
-	float m[4][4] = { 0 };
-
-	vec3 operator * (const vec3& other);
-};
 
 struct triangle
 {

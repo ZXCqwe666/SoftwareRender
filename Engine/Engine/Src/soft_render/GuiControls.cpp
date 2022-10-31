@@ -17,5 +17,9 @@ void GUI_Controls::DrawGUI()
     ImGui::SliderFloat("Position Y", &SoftRender::meshPosition.y, -25.0f, 25.0f);
     ImGui::SliderFloat("Position Z", &SoftRender::meshPosition.z, 0.0f, 25.0f);
 
+    ImGui::Text("Proj point X : %f ", SoftRender::firstPointProj.x);
+    ImGui::Text("Proj point Y : %f ", SoftRender::firstPointProj.y);
+    ImGui::Text("Proj point Z : %f ", SoftRender::firstPointProj.z);
+
     ImGui::End();
 }

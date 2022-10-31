@@ -14,7 +14,7 @@ void SoftCamera::Init(float _zNear, float _zFar, float _fov)
 	zFar = _zFar;
 	fov = _fov;
 
-	float aspectRatio = (float)RES_X / (float)RES_Y;
+	float aspectRatio = (float)RES_Y / (float)RES_X;
 	float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * 3.14159f);
 
 	proj.m[0][0] = aspectRatio * fovRad;

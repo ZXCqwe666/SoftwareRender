@@ -8,10 +8,11 @@ const uint32_t line_color = (128 << 24) | (128 << 16) | (128 << 8) | 255;
 const uint32_t point_color = (200 << 24) | (200 << 16) | (200 << 8) | 255;
 
 vec3 SoftRender::meshPosition = { 0, 0, 2};
+vec3 SoftRender::firstPointProj = { 0 };
 
 void SoftRender::Init()
 {
-	SoftCamera::Init(0.1f, 1000.0f, 60.0f);
+	SoftCamera::Init(0.1f, 500.0f, 60.0f);
 }
 
 void SoftRender::Render()
@@ -56,52 +57,28 @@ void SoftRender::Render()
 		triProjected.p[2] += meshPosition;
 
 		//project
-		triProjected.p[0] = SoftCamera::proj * triProjected.p[0];
-		triProjected.p[1] = SoftCamera::proj * triProjected.p[1];
-		triProjected.p[2] = SoftCamera::proj * triProjected.p[2];
+		triProjected.p[0] *= SoftCamera::proj;
+		triProjected.p[1] *= SoftCamera::proj;
+		triProjected.p[2] *= SoftCamera::proj;
+
+		if(i == 0)
+		firstPointProj = triProjected.p[0];
 
 		//scale into view
-		//const vec3 _110 = {1.0f, 1.0f, 0.0f};
-		//const vec3 _res = {0.5f * (float)RES_X, 0.5f * (float)RES_Y, 1.0f};
-		//triProjected.p[0] += _110;
-		//triProjected.p[1] += _110;
-		//triProjected.p[2] += _110;
-		//triProjected.p[0] *= _res;
-		//triProjected.p[1] *= _res;
-		//triProjected.p[2] *= _res;
-
-		triProjected.p[0].x += 1.0f; triProjected.p[0].y += 1.0f;
-		triProjected.p[1].x += 1.0f; triProjected.p[1].y += 1.0f;
-		triProjected.p[2].x += 1.0f; triProjected.p[2].y += 1.0f;
-		triProjected.p[0].x *= 0.5f * (float)RES_X;
-		triProjected.p[0].y *= 0.5f * (float)RES_Y;
-		triProjected.p[1].x *= 0.5f * (float)RES_X;
-		triProjected.p[1].y *= 0.5f * (float)RES_Y;
-		triProjected.p[2].x *= 0.5f * (float)RES_X;
-		triProjected.p[2].y *= 0.5f * (float)RES_Y;
+		const vec3 _110 = {1.0f, 1.0f, 0.0f};
+		const vec3 _res = {0.5f * (float)RES_X, 0.5f * (float)RES_Y, 1.0f};
+		triProjected.p[0] += _110;
+		triProjected.p[1] += _110;
+		triProjected.p[2] += _110;
+		triProjected.p[0] *= _res;
+		triProjected.p[1] *= _res;
+		triProjected.p[2] *= _res;
 
 		//draw
 		DrawLine(triProjected.p[0], triProjected.p[1]);
 		DrawLine(triProjected.p[1], triProjected.p[2]);
 		DrawLine(triProjected.p[2], triProjected.p[0]);
 	}
-
-	//for (int x = 0; x < RES_X; x++)
-	//{
-	//	for (int y = 0; y < RES_Y; y++)
-	//	{	
-	//		if ((x + y) % 2 == 0)
-	//		{
-	//			int32_t color = (255 << 24) | (32 << 16) | (54 << 8) | 255;
-	//			ScreenBuffer::SetPixel(x, y, color);
-	//		}
-	//		else 
-	//		{
-	//			int32_t color = (4 << 24) | (74 << 16) | (12 << 8) | 255;
-	//			ScreenBuffer::SetPixel(x, y, color);
-	//		}
-	//	}
-	//}
 
 	ScreenBuffer::Update_ScreenTexture();
 }

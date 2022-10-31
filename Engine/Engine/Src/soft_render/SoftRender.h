@@ -6,6 +6,7 @@ class SoftRender
 {
 public:
 	static vec3 meshPosition;
+	static vec3 firstPointProj;
 
 	static void Init();
 	static void Render();
