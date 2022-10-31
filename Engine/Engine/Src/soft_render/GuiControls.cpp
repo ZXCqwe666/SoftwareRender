@@ -13,9 +13,17 @@ void GUI_Controls::DrawGUI()
     ImGui::Begin("Debug");
     ImGui::Text("FPS : %i ", Time::displayFps);
 
-    ImGui::SliderFloat("Position X", &SoftRender::meshPosition.x, -25.0f, 25.0f);
-    ImGui::SliderFloat("Position Y", &SoftRender::meshPosition.y, -25.0f, 25.0f);
-    ImGui::SliderFloat("Position Z", &SoftRender::meshPosition.z, -25.0f, 25.0f);
+    ImGui::DragFloat("Position X", &SoftRender::meshPosition.x, 0.05f, -25.0f, 25.0f);
+    ImGui::DragFloat("Position Y", &SoftRender::meshPosition.y, 0.05f, -25.0f, 25.0f);
+    ImGui::DragFloat("Position Z", &SoftRender::meshPosition.z, 0.05f, 0.0f, 25.0f);
+
+    ImGui::DragFloat("Scale X", &SoftRender::meshScale.x, 0.05f, 0.1f, 25.0f);
+    ImGui::DragFloat("Scale Y", &SoftRender::meshScale.y, 0.05f, 0.1f, 25.0f);
+    ImGui::DragFloat("Scale Z", &SoftRender::meshScale.z, 0.05f, 0.1f, 25.0f);
+
+    ImGui::Checkbox("Mirror X", &SoftRender::mirrorX);
+    ImGui::Checkbox("Mirror Y", &SoftRender::mirrorY);
+    ImGui::Checkbox("Mirror Z", &SoftRender::mirrorZ);
 
     ImGui::End();
 

@@ -8,7 +8,10 @@ const uint32_t line_color = (128 << 24) | (128 << 16) | (128 << 8) | 255;
 const uint32_t point_color = (200 << 24) | (200 << 16) | (200 << 8) | 255;
 
 vec3 SoftRender::meshPosition = { 0, 0, 2};
-vec3 SoftRender::firstPointProj = { 0 };
+vec3 SoftRender::meshScale = { 1, 1, 1 };
+bool SoftRender::mirrorX;
+bool SoftRender::mirrorY;
+bool SoftRender::mirrorZ;
 
 void SoftRender::Init()
 {
@@ -51,6 +54,11 @@ void SoftRender::Render()
 	{
 		triangle triProjected = cubeMesh.triangles[i];
 		
+		//scale 
+		triProjected.p[0] *= meshScale;
+		triProjected.p[1] *= meshScale;
+		triProjected.p[2] *= meshScale;
+
 		//translate
 		triProjected.p[0] += meshPosition;
 		triProjected.p[1] += meshPosition;
@@ -61,8 +69,11 @@ void SoftRender::Render()
 		triProjected.p[1] *= SoftCamera::proj;
 		triProjected.p[2] *= SoftCamera::proj;
 
-		if(i == 0)
-		firstPointProj = triProjected.p[0];
+		//mirror on axis
+		vec3 mirror = {mirrorX ? -1 : 1, mirrorY ? -1 : 1, mirrorZ ? -1 : 1};
+		triProjected.p[0] *= mirror;
+		triProjected.p[1] *= mirror;
+		triProjected.p[2] *= mirror;
 
 		//scale into view
 		const vec3 _110 = {1.0f, 1.0f, 0.0f};
