@@ -15,11 +15,34 @@ void GUI_Controls::DrawGUI()
 
     ImGui::SliderFloat("Position X", &SoftRender::meshPosition.x, -25.0f, 25.0f);
     ImGui::SliderFloat("Position Y", &SoftRender::meshPosition.y, -25.0f, 25.0f);
-    ImGui::SliderFloat("Position Z", &SoftRender::meshPosition.z, 0.0f, 25.0f);
+    ImGui::SliderFloat("Position Z", &SoftRender::meshPosition.z, -25.0f, 25.0f);
 
-    ImGui::Text("Proj point X : %f ", SoftRender::firstPointProj.x);
-    ImGui::Text("Proj point Y : %f ", SoftRender::firstPointProj.y);
-    ImGui::Text("Proj point Z : %f ", SoftRender::firstPointProj.z);
+    ImGui::End();
 
+    //screen space coordinates
+    ImVec2 displaySize = ImGui::GetIO().DisplaySize;
+
+    windowSize = { 125, 0 };
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(0, displaySize.y / 2), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("{-1.0, 0.0}");
+    ImGui::End();
+
+    windowSize = { 125, 0 };
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(displaySize.x, displaySize.y / 2), ImGuiCond_Always, ImVec2(1.0f, 0.0f));
+    ImGui::Begin("{1.0, 0.0}");
+    ImGui::End();
+
+    windowSize = { 125, 0 };
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(displaySize.x / 2, 0), ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+    ImGui::Begin("{0.0, 1.0}");
+    ImGui::End();
+
+    windowSize = { 125, 0 };
+    ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2(displaySize.x / 2, displaySize.y), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
+    ImGui::Begin("{0.0, -1.0}");
     ImGui::End();
 }

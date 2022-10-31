@@ -124,8 +124,10 @@ void SoftRender::DrawLine(const vec3& start, const vec3& end)
 
 	float maxDistance = start.distance2D(end);
 	float distance = 0.0f;
+	int maxIter = RES_X * 10;
+	int iter = 0;
 
-	while (distance < maxDistance)
+	while (iter < maxIter && distance < maxDistance)
 	{
 		if (rayLen1D.x < rayLen1D.y)
 		{
@@ -144,6 +146,8 @@ void SoftRender::DrawLine(const vec3& start, const vec3& end)
 		{
 			ScreenBuffer::SetPixel((uint32_t)checkPos.x, (uint32_t)checkPos.y, line_color);
 		}
+
+		iter++;
 	}
 
 	if ((uint32_t)start.x >= 0 && (uint32_t)start.x < RES_X && (uint32_t)start.y >= 0 && (uint32_t)start.y < RES_Y)
