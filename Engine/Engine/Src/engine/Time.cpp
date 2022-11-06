@@ -63,3 +63,8 @@ void Time::UpdateFps()
         displayFps = sum / 100;
     }
 }
+
+float Time::GetTime()
+{
+    return glfwGetTime();
+}

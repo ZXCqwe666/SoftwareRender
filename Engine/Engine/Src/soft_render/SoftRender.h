@@ -5,6 +5,11 @@
 class SoftRender
 {
 public:
+	static mesh model;
+
+	static const vec3 startPosition;
+	static const vec3 startScale;
+
 	static vec3 meshPosition;
 	static vec3 meshScale;
 
@@ -12,7 +17,21 @@ public:
 	static bool mirrorY;
 	static bool mirrorZ;
 
+	static bool rotateX, rotateY, rotateZ;
+	static bool setRotationX, setRotationY, setRotationZ;
+	static float angleX, angleY, angleZ;
+
+private:
+	static mat4x4 mat_rotX, mat_rotY, mat_rotZ;
+
+private:
+	static void LoadMesh();
+	static void UpdateRotMat();
+	static void DrawLineSimple(const vec3& start, const vec3& end);
+
+public:
 	static void Init();
 	static void Render();
-	static void DrawLine(const vec3& start, const vec3& end);
+	static bool AnyTrisOutOfBounds();
+	static void ResetScene();
 };

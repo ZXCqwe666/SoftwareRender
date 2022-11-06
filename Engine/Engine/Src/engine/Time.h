@@ -27,4 +27,6 @@ public:
     static void FrameEnd();
 
     static void UpdateFps();
+
+    static float GetTime();
 };

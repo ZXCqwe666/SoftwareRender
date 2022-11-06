@@ -3,166 +3,204 @@
 #include "ScreenBuffer.h"
 #include "SoftCamera.h"
 #include "math_data.h"
+#include "Time.h"
 
-const uint32_t line_color = (128 << 24) | (128 << 16) | (128 << 8) | 255;
-const uint32_t point_color = (200 << 24) | (200 << 16) | (200 << 8) | 255;
+const uint32_t line_color = (150 << 24) | (150 << 16) | (150 << 8) | 255;
+const vec3 SoftRender::startPosition = { -0.5, -0.5, 4 };
+const vec3 SoftRender::startScale = { 1, 1, 1 };
 
-vec3 SoftRender::meshPosition = { 0, 0, 2};
-vec3 SoftRender::meshScale = { 1, 1, 1 };
-bool SoftRender::mirrorX;
-bool SoftRender::mirrorY;
-bool SoftRender::mirrorZ;
+mesh SoftRender::model;
+
+vec3 SoftRender::meshPosition = startPosition;
+vec3 SoftRender::meshScale = startScale;
+
+bool SoftRender::mirrorX, SoftRender::mirrorY, SoftRender::mirrorZ;
+bool SoftRender::rotateX, SoftRender::rotateY, SoftRender::rotateZ;
+bool SoftRender::setRotationX, SoftRender::setRotationY, SoftRender::setRotationZ;
+float SoftRender::angleX, SoftRender::angleY, SoftRender::angleZ;
+mat4x4 SoftRender::mat_rotX, SoftRender::mat_rotY, SoftRender::mat_rotZ;
 
 void SoftRender::Init()
 {
-	SoftCamera::Init(0.1f, 500.0f, 60.0f);
+	SoftCamera::Init(0.1f, 100.0f, 60.0f);
+	LoadMesh();
+}
+
+void SoftRender::UpdateRotMat()
+{
+	float time = Time::GetTime();
+
+	float x_angle = setRotationX ? angleX : rotateX ? time : 0;
+
+	mat_rotX.m[0][0] = 1;
+	mat_rotX.m[1][1] = cosf(x_angle);
+	mat_rotX.m[1][2] = sinf(x_angle);
+	mat_rotX.m[2][1] = -sinf(x_angle);
+	mat_rotX.m[2][2] = cosf(x_angle);
+	mat_rotX.m[3][3] = 1;
+
+	float y_angle = setRotationY ? angleY : rotateY ? time : 0;
+
+	mat_rotY.m[0][0] = cosf(y_angle);
+	mat_rotY.m[1][1] = 1;
+	mat_rotY.m[0][2] = sinf(y_angle);
+	mat_rotY.m[2][0] = -sinf(y_angle);
+	mat_rotY.m[2][2] = cosf(y_angle);
+	mat_rotY.m[3][3] = 1;
+
+	float z_angle = setRotationZ ? angleZ : rotateZ ? time : 0;
+
+	mat_rotZ.m[0][0] = cosf(z_angle);
+	mat_rotZ.m[0][1] = sinf(z_angle);
+	mat_rotZ.m[1][0] = -sinf(z_angle);
+	mat_rotZ.m[1][1] = cosf(z_angle);
+	mat_rotZ.m[2][2] = 1;
+	mat_rotZ.m[3][3] = 1;
 }
 
 void SoftRender::Render()
 {
 	ScreenBuffer::Clear();
 
-	mesh cubeMesh;
-	cubeMesh.triangles = 
+	UpdateRotMat();
+
+	vec3 mirror = {mirrorX ? -1 : 1, mirrorY ? -1 : 1, mirrorZ ? -1 : 1};
+	const vec3 _res = { 0.5f * (float)RES_X, 0.5f * (float)RES_Y, 1.0f };
+	const vec3 _110 = { 1.0f, 1.0f, 0.0f };
+
+	for (int i = 0; i < model.triangles.size(); i++)
 	{
-		// SOUTH
-		{ 0.0f, 0.0f, 0.0f,    0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 0.0f },
-		{ 0.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 0.0f, 0.0f },
+		triangle triProjected = model.triangles[i];
 
-		// EAST                                                      
-		{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f },
-		{ 1.0f, 0.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 0.0f, 1.0f },
+		for (int i = 0; i < 3; i++)
+		{
+			triProjected.p[i] *= meshScale;
+			triProjected.p[i] *= mat_rotX;
+			triProjected.p[i] *= mat_rotY;
+			triProjected.p[i] *= mat_rotZ;
+			triProjected.p[i] += meshPosition;
+			triProjected.p[i] *= SoftCamera::proj;
+			triProjected.p[i] *= mirror;
+			triProjected.p[i] += _110;
+			triProjected.p[i] *= _res;
+		}
 
-		// NORTH                                                     
-		{ 1.0f, 0.0f, 1.0f,    1.0f, 1.0f, 1.0f,    0.0f, 1.0f, 1.0f },
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f },
-
-		// WEST                                                      
-		{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 1.0f,    0.0f, 1.0f, 0.0f },
-		{ 0.0f, 0.0f, 1.0f,    0.0f, 1.0f, 0.0f,    0.0f, 0.0f, 0.0f },
-
-		// TOP                                                       
-		{ 0.0f, 1.0f, 0.0f,    0.0f, 1.0f, 1.0f,    1.0f, 1.0f, 1.0f },
-		{ 0.0f, 1.0f, 0.0f,    1.0f, 1.0f, 1.0f,    1.0f, 1.0f, 0.0f },
-
-		// BOTTOM                                                    
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f },
-		{ 1.0f, 0.0f, 1.0f,    0.0f, 0.0f, 0.0f,    1.0f, 0.0f, 0.0f },
-	};
-
-	for (int i = 0; i < cubeMesh.triangles.size(); i++)
-	{
-		triangle triProjected = cubeMesh.triangles[i];
-		
-		//scale 
-		triProjected.p[0] *= meshScale;
-		triProjected.p[1] *= meshScale;
-		triProjected.p[2] *= meshScale;
-
-		//translate
-		triProjected.p[0] += meshPosition;
-		triProjected.p[1] += meshPosition;
-		triProjected.p[2] += meshPosition;
-
-		//project
-		triProjected.p[0] *= SoftCamera::proj;
-		triProjected.p[1] *= SoftCamera::proj;
-		triProjected.p[2] *= SoftCamera::proj;
-
-		//mirror on axis
-		vec3 mirror = {mirrorX ? -1 : 1, mirrorY ? -1 : 1, mirrorZ ? -1 : 1};
-		triProjected.p[0] *= mirror;
-		triProjected.p[1] *= mirror;
-		triProjected.p[2] *= mirror;
-
-		//scale into view
-		const vec3 _110 = {1.0f, 1.0f, 0.0f};
-		const vec3 _res = {0.5f * (float)RES_X, 0.5f * (float)RES_Y, 1.0f};
-		triProjected.p[0] += _110;
-		triProjected.p[1] += _110;
-		triProjected.p[2] += _110;
-		triProjected.p[0] *= _res;
-		triProjected.p[1] *= _res;
-		triProjected.p[2] *= _res;
-
-		//draw
-		DrawLine(triProjected.p[0], triProjected.p[1]);
-		DrawLine(triProjected.p[1], triProjected.p[2]);
-		DrawLine(triProjected.p[2], triProjected.p[0]);
+		DrawLineSimple(triProjected.p[0], triProjected.p[1]);
+		DrawLineSimple(triProjected.p[1], triProjected.p[2]);
+		DrawLineSimple(triProjected.p[2], triProjected.p[0]);
 	}
 
 	ScreenBuffer::Update_ScreenTexture();
 }
 
-void SoftRender::DrawLine(const vec3& start, const vec3& end)
+void SoftRender::DrawLineSimple(const vec3& start, const vec3& end)
 {
-	vec3 startPos = start;
+	const int maxIter = RES_X * 10;
+	int iter = 0;
+
+	float maxDistance = start.distance2D(end);
+	float distance = 0.0f;
+
 	vec3 rayDir = end;
 	rayDir -= start;
 	rayDir.normalize();
 
-	vec3 rayUnitStepSize = 
-	{ 
-		sqrt(1 + (rayDir.y / rayDir.x) * (rayDir.y / rayDir.x)),
-		sqrt(1 + (rayDir.x / rayDir.y) * (rayDir.x / rayDir.y))
-	};
-
-	vec3 checkPos = startPos;
-	vec3 rayLen1D = { 0 };
-	vec3 step = { 0 };
-
-	if (rayDir.x < 0)
-	{
-		step.x = -1;
-		rayLen1D.x = (startPos.x - float(checkPos.x)) * rayUnitStepSize.x;
-	}
-	else
-	{
-		step.x = 1;
-		rayLen1D.x = (float(checkPos.x + 1) - startPos.x) * rayUnitStepSize.x;
-	}
-
-	if (rayDir.y < 0)
-	{
-		step.y = -1;
-		rayLen1D.y = (startPos.y - float(checkPos.y)) * rayUnitStepSize.y;
-	}
-	else
-	{
-		step.y = 1;
-		rayLen1D.y = (float(checkPos.y + 1) - startPos.y) * rayUnitStepSize.y;
-	}
-
-	float maxDistance = start.distance2D(end);
-	float distance = 0.0f;
-	int maxIter = RES_X * 10;
-	int iter = 0;
+	vec3 position = start;
 
 	while (iter < maxIter && distance < maxDistance)
 	{
-		if (rayLen1D.x < rayLen1D.y)
+		uint32_t coordX = uint32_t(position.x);
+		uint32_t coordY = uint32_t(position.y);
+
+		if (coordX >= 0 && coordX < RES_X && coordY >= 0 && coordY < RES_Y)
 		{
-			checkPos.x += step.x;
-			distance = rayLen1D.x;
-			rayLen1D.x += rayUnitStepSize.x;
-		}
-		else
-		{
-			checkPos.y += step.y;
-			distance = rayLen1D.y;
-			rayLen1D.y += rayUnitStepSize.y;
+			ScreenBuffer::SetPixel(coordX, coordY, line_color);
 		}
 
-		if (checkPos.x >= 0 && checkPos.x < RES_X && checkPos.y >= 0 && checkPos.y < RES_Y)
-		{
-			ScreenBuffer::SetPixel((uint32_t)checkPos.x, (uint32_t)checkPos.y, line_color);
-		}
+		position += rayDir;
+		distance++;
+	}	
+}
 
-		iter++;
+bool SoftRender::AnyTrisOutOfBounds()
+{
+	for (int i = 0; i < model.triangles.size(); i++)
+	{
+		triangle triProjected = model.triangles[i];
+
+		for (int i = 0; i < 3; i++)
+		{
+			triProjected.p[i] *= meshScale;
+			triProjected.p[i] *= mat_rotX;
+			triProjected.p[i] *= mat_rotY;
+			triProjected.p[i] *= mat_rotZ;
+			triProjected.p[i] += meshPosition;
+			triProjected.p[i] *= SoftCamera::proj;
+
+			if (triProjected.p[i].x < -1.0f || triProjected.p[i].x > 1.0f 
+			 || triProjected.p[i].y < -1.0f || triProjected.p[i].y > 1.0f)
+			{
+				return true;
+			}
+		}
 	}
 
-	if ((uint32_t)start.x >= 0 && (uint32_t)start.x < RES_X && (uint32_t)start.y >= 0 && (uint32_t)start.y < RES_Y)
+	return false;
+}
+
+void SoftRender::ResetScene()
+{
+	meshPosition = startPosition;
+	meshScale = startScale;
+
+	rotateX = false;
+	rotateY = false;
+	rotateZ = false;
+	setRotationX = false;
+	setRotationY = false;
+	setRotationZ = false;
+	angleX = 0;
+	angleY = 0;
+	angleZ = 0;
+}
+
+#include <iostream>
+#include <fstream>
+
+void SoftRender::LoadMesh()
+{
+	float data[900] = { 0 };
+
+	int n = 0;
+	std::ifstream inFile;
+	inFile.open("Resources/Mesh/model.txt");
+
+	if (inFile.fail())
 	{
-		ScreenBuffer::SetPixel((uint32_t)start.x, (uint32_t)start.y, point_color);
+		std::cout << "No such file" << std::endl;
+		return;
+	}
+
+	inFile >> data[n];
+
+	while (!inFile.eof() && n < 1000)
+	{
+		n++;
+		inFile >> data[n];
+	}
+	inFile.close();
+
+	int tri_count = n / 9;
+
+	for (int i = 0; i < tri_count; i++)
+	{
+		int offset = i * 9;
+
+		triangle tri = { 0 };
+		tri.p[0] = { data[offset + 0],data[offset + 1], data[offset + 2] };
+		tri.p[1] = { data[offset + 3],data[offset + 4], data[offset + 5] };
+		tri.p[2] = { data[offset + 6],data[offset + 7], data[offset + 8] };
+
+		model.triangles.push_back(tri);
 	}
 }
