@@ -19,7 +19,6 @@ struct vec3
 	void normalize();
 };
 
-
 struct triangle
 {
 	vec3 p[3];

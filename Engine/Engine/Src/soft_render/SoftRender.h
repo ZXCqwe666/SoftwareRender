@@ -19,6 +19,7 @@ public:
 
 	static bool rotateX, rotateY, rotateZ;
 	static bool setRotationX, setRotationY, setRotationZ;
+	static bool moveInSpace;
 	static float angleX, angleY, angleZ;
 
 private:

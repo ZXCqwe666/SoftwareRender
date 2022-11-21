@@ -12,4 +12,5 @@ public:
 
 public:
 	static void Init(float _zNear, float _zFar, float _fov);
+	static vec3 Project(const vec3& point);
 };

@@ -24,3 +24,25 @@ void SoftCamera::Init(float _zNear, float _zFar, float _fov)
 	proj.m[2][3] = 1.0f;
 	proj.m[3][3] = 0.0f;
 }
+
+vec3 SoftCamera::Project(const vec3& point)
+{	
+	vec3 result = {0, 0, 0};
+
+	//соотношение сторон екрана (например 1920 / 1080)
+	float aspectRatio = (float)RES_Y / (float)RES_X;
+	// 1 / tan(Q/2)   Q - угол обзора   Перевод в радианы: / 180.0f * 3.14159f  
+	float fovRad = 1.0f / tanf(fov * 0.5f / 180.0f * 3.14159f);
+
+	result.x = point.x * aspectRatio * fovRad;
+	result.y = point.y * fovRad;
+	result.z = point.z / (zFar - zNear);
+
+	if (point.z != 0)
+	{
+		result.x /= point.z;
+		result.y /= point.z;
+	}
+
+	return result;
+}

@@ -10,7 +10,7 @@ void GUI_Controls::DrawGUI()
     vec3 meshPosition_copy = SoftRender::meshPosition;
     vec3 meshScale_copy = SoftRender::meshScale;
 
-    ImVec2 windowSize = { 350, 500 };
+    ImVec2 windowSize = { 350, 600 };
     ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
     ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - windowSize.x, windowSize.y), ImGuiCond_Always, ImVec2(0.0f, 1.0f));
 
@@ -43,6 +43,8 @@ void GUI_Controls::DrawGUI()
     ImGui::Checkbox("Mirror X", &SoftRender::mirrorX);
     ImGui::Checkbox("Mirror Y", &SoftRender::mirrorY);
     ImGui::Checkbox("Mirror Z", &SoftRender::mirrorZ);
+    ImGui::Spacing();
+    ImGui::Checkbox("Movement Curve:", &SoftRender::moveInSpace);
 
     ImGui::End();
     

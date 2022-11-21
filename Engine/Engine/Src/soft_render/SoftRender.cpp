@@ -6,7 +6,7 @@
 #include "Time.h"
 
 const uint32_t line_color = (150 << 24) | (150 << 16) | (150 << 8) | 255;
-const vec3 SoftRender::startPosition = { -0.5, -0.5, 4 };
+const vec3 SoftRender::startPosition = { -2.5, -1.5, 6 };
 const vec3 SoftRender::startScale = { 1, 1, 1 };
 
 mesh SoftRender::model;
@@ -14,6 +14,7 @@ mesh SoftRender::model;
 vec3 SoftRender::meshPosition = startPosition;
 vec3 SoftRender::meshScale = startScale;
 
+bool SoftRender::moveInSpace;
 bool SoftRender::mirrorX, SoftRender::mirrorY, SoftRender::mirrorZ;
 bool SoftRender::rotateX, SoftRender::rotateY, SoftRender::rotateZ;
 bool SoftRender::setRotationX, SoftRender::setRotationY, SoftRender::setRotationZ;
@@ -79,7 +80,16 @@ void SoftRender::Render()
 			triProjected.p[i] *= mat_rotY;
 			triProjected.p[i] *= mat_rotZ;
 			triProjected.p[i] += meshPosition;
-			triProjected.p[i] *= SoftCamera::proj;
+
+			triProjected.p[i] = SoftCamera::Project(triProjected.p[i]);
+
+			if (moveInSpace)
+			{
+				float time = Time::GetTime();
+				triProjected.p[i].x += 2 * sin(time) / 4;
+				triProjected.p[i].y += cos(time) / 4;
+			}
+
 			triProjected.p[i] *= mirror;
 			triProjected.p[i] += _110;
 			triProjected.p[i] *= _res;
