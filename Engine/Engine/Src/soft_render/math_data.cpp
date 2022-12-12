@@ -1,5 +1,12 @@
 #include "math_data.h"
 
+void vec3::operator-(const vec3& other)
+{
+	x -= other.x;
+	y -= other.y;
+	z -= other.z;
+}
+
 void vec3::operator+=(const vec3& other)
 {
 	x += other.x;

@@ -4,9 +4,10 @@
 #include "SoftCamera.h"
 #include "math_data.h"
 #include "Time.h"
+#include <algorithm>
 
 const uint32_t line_color = (150 << 24) | (150 << 16) | (150 << 8) | 255;
-const vec3 SoftRender::startPosition = { -2.5, -1.5, 6 };
+const vec3 SoftRender::startPosition = { -2.5, -1.5, 11 };
 const vec3 SoftRender::startScale = { 1, 1, 1 };
 
 mesh SoftRender::model;
@@ -65,22 +66,52 @@ void SoftRender::Render()
 
 	UpdateRotMat();
 
-	vec3 mirror = {mirrorX ? -1 : 1, mirrorY ? -1 : 1, mirrorZ ? -1 : 1};
-	const vec3 _res = { 0.5f * (float)RES_X, 0.5f * (float)RES_Y, 1.0f };
-	const vec3 _110 = { 1.0f, 1.0f, 0.0f };
+	std::vector<triangle> tris;
 
 	for (int i = 0; i < model.triangles.size(); i++)
 	{
-		triangle triProjected = model.triangles[i];
+		triangle world_space_tri = model.triangles[i];
 
 		for (int i = 0; i < 3; i++)
 		{
-			triProjected.p[i] *= meshScale;
-			triProjected.p[i] *= mat_rotX;
-			triProjected.p[i] *= mat_rotY;
-			triProjected.p[i] *= mat_rotZ;
-			triProjected.p[i] += meshPosition;
+			world_space_tri.p[i] *= meshScale;
+			world_space_tri.p[i] *= mat_rotX;
+			world_space_tri.p[i] *= mat_rotY;
+			world_space_tri.p[i] *= mat_rotZ;
+			world_space_tri.p[i] += meshPosition;
+		}
 
+		tris.push_back(world_space_tri);
+	}
+
+	std::sort(tris.begin(), tris.end(), [](triangle& t1_w, triangle& t2_w)
+	{
+		triangle t1{};
+		t1.p[0] = SoftCamera::Project(t1_w.p[0]);
+		t1.p[1] = SoftCamera::Project(t1_w.p[1]);
+		t1.p[2] = SoftCamera::Project(t1_w.p[2]);
+
+		triangle t2{};
+		t2.p[0] = SoftCamera::Project(t2_w.p[0]);
+		t2.p[1] = SoftCamera::Project(t2_w.p[1]);
+		t2.p[2] = SoftCamera::Project(t2_w.p[2]);
+
+		float average_z1 = (t1.p[0].z + t1.p[1].z + t1.p[2].z) / 3.0f;
+		float average_z2 = (t2.p[0].z + t2.p[1].z + t2.p[2].z) / 3.0f;
+		return average_z1 > average_z2;
+	});
+
+	vec3 mirror = {mirrorX ? -1 : 1, mirrorY ? -1 : 1, 1};
+	const vec3 _res = { 0.5f * (float)RES_X, 0.5f * (float)RES_Y, 1.0f };
+	const vec3 _110 = { 1.0f, 1.0f, 0.0f };
+
+	for (int i = 0; i < tris.size(); i++)
+	{
+		triangle triProjected = tris[i];
+		triangle world_space_tri = tris[i];
+
+		for (int i = 0; i < 3; i++)
+		{
 			triProjected.p[i] = SoftCamera::Project(triProjected.p[i]);
 
 			if (moveInSpace)
@@ -95,9 +126,31 @@ void SoftRender::Render()
 			triProjected.p[i] *= _res;
 		}
 
-		DrawLineSimple(triProjected.p[0], triProjected.p[1]);
-		DrawLineSimple(triProjected.p[1], triProjected.p[2]);
-		DrawLineSimple(triProjected.p[2], triProjected.p[0]);
+		//calculate normal vector of a triangle
+		//cross product (perpendicular to triangle plane)
+
+		vec3 A = world_space_tri.p[1];
+		A -= world_space_tri.p[0];
+		vec3 B = world_space_tri.p[2];
+		B -= world_space_tri.p[0];
+
+		vec3 normal
+		{
+			A.y * B.z - A.z * B.y,
+			A.z * B.x - A.x * B.z,
+			A.x * B.y - A.y * B.x,
+		};
+
+		normal.normalize();
+
+		if (normal.x * triProjected.p[0].x +
+			normal.y * triProjected.p[0].y +
+			normal.z * triProjected.p[0].z < 0.0f)
+		{
+			DrawLineSimple(triProjected.p[0], triProjected.p[1]);
+			DrawLineSimple(triProjected.p[1], triProjected.p[2]);
+			DrawLineSimple(triProjected.p[2], triProjected.p[0]);
+		}
 	}
 
 	ScreenBuffer::Update_ScreenTexture();

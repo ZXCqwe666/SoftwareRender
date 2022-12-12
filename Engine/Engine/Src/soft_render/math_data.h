@@ -9,6 +9,7 @@ struct vec3
 {
 	float x, y, z;
 
+	void operator - (const vec3& other);
 	void operator += (const vec3& other);
 	void operator -= (const vec3& other);
 	void operator *= (const vec3& other);
