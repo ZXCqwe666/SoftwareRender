@@ -143,9 +143,7 @@ void SoftRender::Render()
 
 		normal.normalize();
 
-		if (normal.x * triProjected.p[0].x +
-			normal.y * triProjected.p[0].y +
-			normal.z * triProjected.p[0].z < 0.0f)
+		if (normal.z < 0.0f)
 		{
 			DrawLineSimple(triProjected.p[0], triProjected.p[1]);
 			DrawLineSimple(triProjected.p[1], triProjected.p[2]);
