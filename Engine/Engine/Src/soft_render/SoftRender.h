@@ -33,6 +33,5 @@ private:
 public:
 	static void Init();
 	static void Render();
-	static bool AnyTrisOutOfBounds();
 	static void ResetScene();
 };

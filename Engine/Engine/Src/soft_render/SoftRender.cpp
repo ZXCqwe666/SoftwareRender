@@ -6,8 +6,8 @@
 #include "Time.h"
 #include <algorithm>
 
-const uint32_t line_color = (150 << 24) | (150 << 16) | (150 << 8) | 255;
-const vec3 SoftRender::startPosition = { -2.5, -1.5, 11 };
+uint32_t line_color = (150 << 24) | (150 << 16) | (150 << 8) | 255;
+const vec3 SoftRender::startPosition = { -2.0, -2.0, 11 };
 const vec3 SoftRender::startScale = { 1, 1, 1 };
 
 mesh SoftRender::model;
@@ -107,33 +107,32 @@ void SoftRender::Render()
 
 	for (int i = 0; i < tris.size(); i++)
 	{
-		triangle triProjected = tris[i];
+		triangle triProj = tris[i];
 		triangle world_space_tri = tris[i];
 
 		for (int i = 0; i < 3; i++)
 		{
-			triProjected.p[i] = SoftCamera::Project(triProjected.p[i]);
+			triProj.p[i] = SoftCamera::Project(triProj.p[i]);
 
 			if (moveInSpace)
 			{
 				float time = Time::GetTime();
-				triProjected.p[i].x += 2 * sin(time) / 4;
-				triProjected.p[i].y += cos(time) / 4;
+				triProj.p[i].x += 2 * sin(time) / 4;
+				triProj.p[i].y += cos(time) / 4;
 			}
 
-			triProjected.p[i] *= mirror;
-			triProjected.p[i] += _110;
-			triProjected.p[i] *= _res;
+			triProj.p[i] *= mirror;
+			triProj.p[i] += _110;
+			triProj.p[i] *= _res;
 		}
 
 		//calculate normal vector of a triangle
-		//cross product (perpendicular to triangle plane)
-
 		vec3 A = world_space_tri.p[1];
 		A -= world_space_tri.p[0];
 		vec3 B = world_space_tri.p[2];
 		B -= world_space_tri.p[0];
 
+		//cross product (vector perpendicular to triangle plane)
 		vec3 normal
 		{
 			A.y * B.z - A.z * B.y,
@@ -143,12 +142,20 @@ void SoftRender::Render()
 
 		normal.normalize();
 
-		if (normal.z < 0.0f)
-		{
-			DrawLineSimple(triProjected.p[0], triProjected.p[1]);
-			DrawLineSimple(triProjected.p[1], triProjected.p[2]);
-			DrawLineSimple(triProjected.p[2], triProjected.p[0]);
-		}
+		//dot product
+		vec3 light_dir = {0, 0, -1.0};
+		float illumination = normal.x * light_dir.x + normal.y * light_dir.y + normal.z * light_dir.z;
+
+		//face color
+		if (illumination > 1) illumination = 1;
+		if (illumination < 0) illumination = 0;
+		int color  = int(illumination * 255);
+		line_color = (color << 24) | (color << 16) | (color << 8) | 255;
+
+		//draw pixels
+		DrawLineSimple(triProj.p[0], triProj.p[1]);
+		DrawLineSimple(triProj.p[1], triProj.p[2]);
+		DrawLineSimple(triProj.p[2], triProj.p[0]);
 	}
 
 	ScreenBuffer::Update_ScreenTexture();
@@ -183,32 +190,6 @@ void SoftRender::DrawLineSimple(const vec3& start, const vec3& end)
 	}	
 }
 
-bool SoftRender::AnyTrisOutOfBounds()
-{
-	for (int i = 0; i < model.triangles.size(); i++)
-	{
-		triangle triProjected = model.triangles[i];
-
-		for (int i = 0; i < 3; i++)
-		{
-			triProjected.p[i] *= meshScale;
-			triProjected.p[i] *= mat_rotX;
-			triProjected.p[i] *= mat_rotY;
-			triProjected.p[i] *= mat_rotZ;
-			triProjected.p[i] += meshPosition;
-			triProjected.p[i] *= SoftCamera::proj;
-
-			if (triProjected.p[i].x < -1.0f || triProjected.p[i].x > 1.0f 
-			 || triProjected.p[i].y < -1.0f || triProjected.p[i].y > 1.0f)
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
 void SoftRender::ResetScene()
 {
 	meshPosition = startPosition;
@@ -232,7 +213,6 @@ void SoftRender::LoadMesh()
 {
 	float data[900] = { 0 };
 
-	int n = 0;
 	std::ifstream inFile;
 	inFile.open("Resources/Mesh/model.txt");
 
@@ -242,12 +222,23 @@ void SoftRender::LoadMesh()
 		return;
 	}
 
-	inFile >> data[n];
+	int n = 0;
 
 	while (!inFile.eof() && n < 1000)
 	{
-		n++;
-		inFile >> data[n];
+		inFile >> data[n + 0];
+		inFile >> data[n + 1];
+		inFile >> data[n + 2];
+
+		inFile >> data[n + 3];
+		inFile >> data[n + 4];
+		inFile >> data[n + 5];
+
+		inFile >> data[n + 6];
+		inFile >> data[n + 7];
+		inFile >> data[n + 8];
+
+		n += 9;
 	}
 	inFile.close();
 
@@ -258,9 +249,9 @@ void SoftRender::LoadMesh()
 		int offset = i * 9;
 
 		triangle tri = { 0 };
-		tri.p[0] = { data[offset + 0],data[offset + 1], data[offset + 2] };
-		tri.p[1] = { data[offset + 3],data[offset + 4], data[offset + 5] };
-		tri.p[2] = { data[offset + 6],data[offset + 7], data[offset + 8] };
+		tri.p[0] = { data[offset + 0], data[offset + 1], data[offset + 2] };
+		tri.p[1] = { data[offset + 3], data[offset + 4], data[offset + 5] };
+		tri.p[2] = { data[offset + 6], data[offset + 7], data[offset + 8] };
 
 		model.triangles.push_back(tri);
 	}

@@ -45,16 +45,8 @@ void GUI_Controls::DrawGUI()
     ImGui::Checkbox("Mirror Z", &SoftRender::mirrorZ);
     ImGui::Spacing();
     ImGui::Checkbox("Movement Curve:", &SoftRender::moveInSpace);
-
     ImGui::End();
     
-    if (SoftRender::AnyTrisOutOfBounds())
-    {
-        SoftRender::ResetScene();
-        SoftRender::meshPosition = meshPosition_copy;
-        SoftRender::meshScale = meshScale_copy;
-    }
-
     //screen space coordinates
     ImVec2 displaySize = ImGui::GetIO().DisplaySize;
 
