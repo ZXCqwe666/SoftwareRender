@@ -147,8 +147,8 @@ void SoftRender::Render()
 		float illumination = normal.x * light_dir.x + normal.y * light_dir.y + normal.z * light_dir.z;
 
 		//face color
-		if (illumination > 1) illumination = 1;
-		if (illumination < 0) illumination = 0;
+		if (illumination > 1.0f) illumination = 1.0f;
+		if (illumination < 0.0f) illumination = 0.0f;
 		int color  = int(illumination * 255);
 		line_color = (color << 24) | (color << 16) | (color << 8) | 255;
 
