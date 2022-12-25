@@ -144,18 +144,22 @@ void SoftRender::Render()
 
 		//dot product
 		vec3 light_dir = {0, 0, -1.0};
-		float illumination = normal.x * light_dir.x + normal.y * light_dir.y + normal.z * light_dir.z;
+		float ambient = 0.2f;
+		float illumination = ambient + normal.x * light_dir.x + normal.y * light_dir.y + normal.z * light_dir.z;
 
 		//face color
 		if (illumination > 1.0f) illumination = 1.0f;
-		if (illumination < 0.0f) illumination = 0.0f;
-		int color  = int(illumination * 255);
-		line_color = (color << 24) | (color << 16) | (color << 8) | 255;
+		if (illumination < 0.0f) illumination = ambient;
+		int r = int(0.43f * illumination * 255);
+		int g = int(0.71f * illumination * 255);
+		int b = int(0.1f * illumination * 255);
+		line_color = (r << 24) | (g << 16) | (b << 8) | 255;
 
-		//draw pixels
-		DrawLineSimple(triProj.p[0], triProj.p[1]);
-		DrawLineSimple(triProj.p[1], triProj.p[2]);
-		DrawLineSimple(triProj.p[2], triProj.p[0]);
+		drawDriangle(triProj, line_color);
+
+		//DrawLineSimple(triProj.p[0], triProj.p[1]);
+		//DrawLineSimple(triProj.p[1], triProj.p[2]);
+		//DrawLineSimple(triProj.p[2], triProj.p[0]);
 	}
 
 	ScreenBuffer::Update_ScreenTexture();
@@ -254,5 +258,38 @@ void SoftRender::LoadMesh()
 		tri.p[2] = { data[offset + 6], data[offset + 7], data[offset + 8] };
 
 		model.triangles.push_back(tri);
+	}
+}
+
+float SoftRender::edgeFunction(const vec3& a, const vec3& b, const vec3& c)
+{
+	return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
+}
+
+void SoftRender::drawDriangle(const triangle& tri, int color)
+{
+	float area = edgeFunction(tri.p[0], tri.p[1], tri.p[2]);
+
+	for (uint32_t y = 0; y < RES_Y; ++y) 
+	{
+		for (uint32_t x = 0; x < RES_X; ++x)
+		{
+			vec3 p = { x + 0.5f, y + 0.5f, 0.0f };
+
+			float w0 = edgeFunction(tri.p[1], tri.p[2], p);
+			float w1 = edgeFunction(tri.p[2], tri.p[0], p);
+			float w2 = edgeFunction(tri.p[0], tri.p[1], p);
+
+			if (w0 >= 0 && w1 >= 0 && w2 >= 0) 
+			{
+				w0 /= area;
+				w1 /= area;
+				w2 /= area;
+				float sum = w0 + w1 + w2;
+
+				if(sum > 0)
+				ScreenBuffer::SetPixel(x, y, line_color);
+			}
+		}
 	}
 }

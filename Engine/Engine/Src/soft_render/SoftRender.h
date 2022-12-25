@@ -34,4 +34,7 @@ public:
 	static void Init();
 	static void Render();
 	static void ResetScene();
+
+	static float edgeFunction(const vec3& a, const vec3& b, const vec3& c);
+	static void drawDriangle(const triangle& tri, int color);
 };
